@@ -1,17 +1,24 @@
-var webpackDevServer = 'webpack-dev-server/client?http://localhost:8080'
-var bourbonPaths = require('bourbon').includePaths
+const webpack = require('webpack')
+const path = require('path')
+const bourbonPaths = require('bourbon').includePaths
+
+const HOST = process.env.HOST || '0.0.0.0'
+const PORT = process.env.PORT || '8888'
 
 module.exports = {
-  context: __dirname + '/src',
-  entry: {
-    index: [
-      './index',
-      webpackDevServer
-    ]
-  },
+  context: path.join(__dirname, 'src'),
+  entry: [
+    `webpack-dev-server/client?http://${HOST}:${PORT}`, // WebpackDevServer host and port
+    'webpack/hot/only-dev-server',
+    './index.js' // Your appʼs entry point
+  ],
+  devtool: process.env.WEBPACK_DEVTOOL || 'source-map',
   output: {
-    path: __dirname + '/dist',
-    filename: '[name].dist.js'
+    path: path.join(__dirname, 'public'),
+    filename: 'bundle.js'
+  },
+  resolve: {
+    extensions: ['', '.js']
   },
   module: {
     loaders: [
@@ -34,9 +41,21 @@ module.exports = {
       }
     ]
   },
+  devServer: {
+    contentBase: './public',
+    noInfo: true, //  --no-info option
+    hot: true,
+    inline: true,
+    port: PORT,
+    host: HOST
+  },
+  plugins: [
+    new webpack.NoErrorsPlugin(),
+    new webpack.HotModuleReplacementPlugin()
+  ],
   sassLoader: {
     includePaths: [
-      __dirname + '/src/styles',
+      path.join(__dirname, '/src/styles'),
       bourbonPaths
     ],
     indentedSyntax: true
